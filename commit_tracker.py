@@ -45,26 +45,26 @@ def fetch_calendar():
         log("ERROR: set GH_USERNAME and GH_TOKEN environment variables")
         sys.exit(1)
 
-        headers = {"Authorization": f"bearer {TOKEN}"}
-        resp = requests.post(
-            GRAPHQL_URL,
-            json={"query": QUERY, "variables": {"login": USERNAME}},
-            headers=headers,
-            timeout=30,
-        )
-        resp.raise_for_status()
-        data = resp.json()
+    headers = {"Authorization": f"bearer {TOKEN}"}
+    resp = requests.post(
+        GRAPHQL_URL,
+        json={"query": QUERY, "variables": {"login": USERNAME}},
+        headers=headers,
+        timeout=30,
+    )
+    resp.raise_for_status()
+    data = resp.json()
 
-        if "errors" in data:
-            log(f"ERROR: {data['errors']}")
-            sys.exit(1)
+    if "errors" in data:
+        log(f"ERROR: {data['errors']}")
+        sys.exit(1)
 
-        weeks = data["data"]["user"]["contributonsCollection"]["contributionCalendar"]["weeks"]
-        days = {}
-        for week in weeks:
-            for day in week["contributionDays"]:
-                days[day["date"]] = day["contributionCount"]
-        return days
+    weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
+    days = {}
+    for week in weeks:
+        for day in week["contributionDays"]:
+            days[day["date"]] = day["contributionCount"]
+    return days
 
 def load_history():
     if HISTORY_FILE.exists():
