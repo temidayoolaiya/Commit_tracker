@@ -1,0 +1,51 @@
+name: Track GitHub Contributions
+
+on:
+  schedule:
+    # Runs at 23:00 UTC daily. Adjust to run near the END of your local day
+    # so late-night commits have already landed. Example offsets:
+    #   UTC+5 (e.g. Lagos is UTC+1, so 23:00 UTC = 00:00 local) - tweak as needed.
+    - cron: "0 23 * * *"
+  workflow_dispatch: {}  # lets you also trigger it manually from the Actions tab
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests
+
+      - name: Run tracker
+        env:
+          GH_USERNAME: ${{ github.repository_owner }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python track_contributions.py
+
+      - name: Commit updated history/log back to the repo
+        run: |
+          git config user.name "contribution-tracker-bot"
+          git config user.email "actions@github.com"
+          git add contribution_history.json contribution_log.txt
+          git diff --quiet --cached || git commit -m "Update contribution tracking data"
+          git push
+
+      - name: Open an issue if a drop was detected
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if grep -q "DROP DETECTED" contribution_log.txt; then
+            gh issue create \
+              --title "Contribution drop detected - $(date -u +%Y-%m-%d)" \
+              --body "The tracker found a date whose contribution count dropped. See contribution_log.txt in the repo for details." \
+              --repo ${{ github.repository }}
+          fi
+          
