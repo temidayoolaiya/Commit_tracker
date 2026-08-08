@@ -27,7 +27,7 @@ jobs:
         env:
           GH_USERNAME: ${{ github.repository_owner }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python track_contributions.py
+        run: python commit_tracker.py
 
       - name: Commit updated history/log back to the repo
         run: |
@@ -48,4 +48,3 @@ jobs:
               --body "The tracker found a date whose contribution count dropped. See contribution_log.txt in the repo for details." \
               --repo ${{ github.repository }}
           fi
-          
