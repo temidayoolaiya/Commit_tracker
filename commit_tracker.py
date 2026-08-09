@@ -15,21 +15,19 @@ GRAPHQL_URL = "https://api.github.com/graphql"
 
 QUERY = """
 query($login: String!) {
-    user(login: $login){
-         contributonsCollection{
-             contributionCalendar{
-                 totalContributions
-                 weeks{
-                     contributionDays{
-                         datetime
-                         contributionCount
-                     }
-                 }
-                 
-             }
-         }
+  user(login: $login) {
+    contributionsCollection {
+      contributionCalendar {
+        totalContributions
+        weeks {
+          contributionDays {
+            date
+            contributionCount
+          }
+        }
+      }
     }
-      
+  }
 }
 """
 
@@ -41,7 +39,6 @@ def log(msg: str):
         f.write(line + "\n")
 
 def fetch_calendar():
-    print("RUNNING FIXED VERSION")
     if not USERNAME or not TOKEN:
         log("ERROR: set GH_USERNAME and GH_TOKEN environment variables")
         sys.exit(1)
