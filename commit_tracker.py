@@ -41,6 +41,7 @@ def log(msg: str):
         f.write(line + "\n")
 
 def fetch_calendar():
+    print("RUNNING FIXED VERSION")
     if not USERNAME or not TOKEN:
         log("ERROR: set GH_USERNAME and GH_TOKEN environment variables")
         sys.exit(1)
